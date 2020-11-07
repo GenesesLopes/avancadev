@@ -2,22 +2,21 @@ package main
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"github.com/hashicorp/go-retryablehttp"
 )
 
-type Coupon struct {
-	Code string
-}
-
 type Coupons struct {
-	Coupon []Coupon
+	Coupon []string
 }
 
 func (c Coupons) Check(code string) string {
 	for _, item := range c.Coupon {
-		if code == item.Code {
+		if code == item {
 			return "valid"
 		}
 	}
@@ -31,11 +30,23 @@ type Result struct {
 var coupons Coupons
 
 func main() {
-	coupon := Coupon{
-		Code: "abc",
+	retryClient := retryablehttp.NewClient()
+	retryClient.RetryMax = 5
+	response, err := retryClient.Get("http://php_dev:8000")
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
-	coupons.Coupon = append(coupons.Coupon, coupon)
+	defer response.Body.Close()
+	
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	json.Unmarshal(responseData,&coupons.Coupon)
 
 	http.HandleFunc("/", home)
 	http.ListenAndServe(":9092", nil)

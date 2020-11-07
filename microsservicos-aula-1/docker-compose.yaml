@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  php:
+    container_name: php_dev
+    image: "php:7.4.4-fpm-alpine"
+    volumes:
+      - ".:/usr/src"
+    working_dir: "/usr/src"
+    ports:
+      - 8000:8000
+
+  golang:
+    container_name: golang
+    image: "golang:alpine"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ".:/usr/src"
+    working_dir: "/usr/src"
+    ports:
+      - "9090:9090"
+      - "9091:9091"
+      - "9092:9092"
