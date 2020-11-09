@@ -2,7 +2,21 @@ version: '3'
 
 services:
 
+  golang:
+    container_name: golang
+    image: "golang:alpine"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ".:/usr/src"
+    working_dir: "/usr/src"
+    ports:
+      - "9090:9090"
+      - "9091:9091"
+      - "9092:9092"
+  
   rabbit:
+    container_name: rabbitmq
     image: "rabbitmq:3-management"
     environment:
       RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
